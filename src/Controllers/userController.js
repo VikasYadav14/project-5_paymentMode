@@ -42,43 +42,47 @@ const createUser=async function(req,res){
 
         if(!isValid(address)) return res.status(400).send({status:false,message:"Address is mandatory"})
 
-        if(address.shipping){
-            if(!keyValid(address.shipping)) return res.status(400).send({status:false,message:"Please provide address for Shipping"})
+        const addressParse=JSON.parse(address)
+       
+        if(addressParse.shipping){
+            if(!keyValid(addressParse.shipping)) return res.status(400).send({status:false,message:"Please provide address for Shipping"})
  
-            if(!isValid(address.shipping.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
+            if(!isValid(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
+ 
+            if(!isValid(addressParse.shipping.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
 
-            if(!isValid(address.shipping.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
+            if(!isValid(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
 
-            if(!isValid(address.shipping.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
-
-            if(!pincodeValid.test(address.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
-
+            if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
+        }else{
+            return res.status(400).send({status:false,message:"Please provide address for Shipping"})
         }
         
-        if(address.billing){
-            if(!keyValid(address.billing)) return res.status(400).send({status:false,message:"Please provide address for billing"})
+        if(addressParse.billing){
+            if(!keyValid(addressParse.billing)) return res.status(400).send({status:false,message:"Please provide address for billing"})
 
-            if(!isValid(address.billing.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
 
-            if(!isValid(address.billing.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
 
-            if(!isValid(address.billing.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
 
-            if(!pincodeValid.test(address.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
+            if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
 
+        }else{
+            return res.status(400).send({status:false,message:"Please provide address for billing"})
         }
 
         let profileImage1=await imgUpload.uploadFile(files[0])
 
-        
         const encyptPassword=await bcrypt.hash(password,10)
-        console.log(encyptPassword)
 
         let obj={
-            fname,lname,email,profileImage:profileImage1,phone,password:encyptPassword,address
+            fname,lname,email,profileImage:profileImage1,phone,password:encyptPassword,address:addressParse
         }
-
+    
         const newUser = await userModel.create(obj)
+        
         return res.status(201).send({ status: true, message: 'Success', data: newUser })
 
     } catch (error) {

@@ -16,11 +16,11 @@ const createUser=async function(req,res){
         
         if(!isValid(fname)) return res.status(400).send({status:false,message:"fname is mandatory and should have non empty String"})
 
-        if(!isValidName.test(fname)) return res.status(400).send({status:false,message:"Please Provide fname in valid formate"})
+        if(!isValidName.test(fname)) return res.status(400).send({status:false,message:"Please Provide fname in valid formate and Should Starts with Capital Letter"})
 
         if(!isValid(lname)) return res.status(400).send({status:false,message:"lname is mandatory and should have non empty String"})
 
-        if(!isValidName.test(lname)) return res.status(400).send({status:false,message:"Please Provide lname in valid formate"})
+        if(!isValidName.test(lname)) return res.status(400).send({status:false,message:"Please Provide lname in valid formate and Should Starts with Capital Letter"})
 
         if(!isValid(email)) return res.status(400).send({status:false,message:"email is mandatory and should have non empty String"})
 
@@ -47,13 +47,13 @@ const createUser=async function(req,res){
         if(addressParse.shipping){
             if(!keyValid(addressParse.shipping)) return res.status(400).send({status:false,message:"Please provide address for Shipping"})
  
-            if(!isValid(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
+            if(!isValid(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String in Shipping"})
  
-            if(!isValid(addressParse.shipping.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
+            if(!isValid(addressParse.shipping.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String in Shipping"})
 
-            if(!isValid(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
+            if(!isValid(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String in Shipping"})
 
-            if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
+            if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in Shipping"})
         }else{
             return res.status(400).send({status:false,message:"Please provide address for Shipping"})
         }
@@ -61,13 +61,13 @@ const createUser=async function(req,res){
         if(addressParse.billing){
             if(!keyValid(addressParse.billing)) return res.status(400).send({status:false,message:"Please provide address for billing"})
 
-            if(!isValid(addressParse.billing.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.street)) return res.status(400).send({status:false,message:"Street is mandatory and should have non empty String in billing"})
 
-            if(!isValid(addressParse.billing.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.city)) return res.status(400).send({status:false,message:"city is mandatory and should have non empty String in billing"})
 
-            if(!isValid(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String"})
+            if(!isValid(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"pincode is mandatory and should have non empty String in billing"})
 
-            if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number"})
+            if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in billing"})
 
         }else{
             return res.status(400).send({status:false,message:"Please provide address for billing"})
@@ -82,7 +82,7 @@ const createUser=async function(req,res){
         }
     
         const newUser = await userModel.create(obj)
-        
+
         return res.status(201).send({ status: true, message: 'Success', data: newUser })
 
     } catch (error) {

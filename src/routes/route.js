@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
+const {authentication}=require("../MiddleWare/auth")
 
 router.get("/test",function(req,res){
     return res.send({data:"This to test"})
@@ -10,9 +11,11 @@ router.post("/register", createUser)
 
 router.post("/login",loginUser)
 
-router.put("/user/:userId/profile", updateUser)
+router.get("/user/:userId/profile",authentication ,getById)
 
-router.get("/user/:userId/profile", getById)
+router.put("/user/:userId/profile",authentication, updateUser)
+
+
 
 
 

@@ -23,17 +23,15 @@ const isValidPassword = function (pw) {
 
 const pincodeValid = /^(\d{4}|\d{6})$/
 
-const isValidImg = /([a-zA-Z0-9\s_\\.\-:])+(.png|.jpg|.gif)$/
-
 
 const keyValid = function (value) {
   if (Object.keys(value).length > 0) return true;
   return false;
 };
-
+ 
 const objectIdValid = function (value) {
   return mongoose.Types.ObjectId.isValid(value);
 };
 
 
-module.exports = { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, isValidImg, validString ,objectIdValid}
+module.exports = { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, validString ,objectIdValid}

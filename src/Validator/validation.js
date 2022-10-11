@@ -18,9 +18,12 @@
 
       const pincodeValid=/^(\d{4}|\d{6})$/
 
+      const isValidImg=/([a-zA-Z0-9\s_\\.\-:])+(.png|.jpg|.gif)$/
+
+
       const keyValid = function (value) {
         if (Object.keys(value).length > 0) return true;
         return false;
       };
 
-      module.exports={isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid}
+      module.exports={isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid,isValidImg}

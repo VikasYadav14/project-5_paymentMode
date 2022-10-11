@@ -1,9 +1,11 @@
 const userModel=require("../Models/userModel")
-const {isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid}=require('../Validator/validation')
+const {isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid,isValidImg}=require('../Validator/validation')
 
 const imgUpload=require("../AWS/aws-S3")
 
 const bcrypt=require('bcrypt')
+
+const jwt=require('jsonwebtoken')
 
 const createUser=async function(req,res){
     try {
@@ -29,6 +31,8 @@ const createUser=async function(req,res){
         if(await userModel.findOne({email})) return res.status(400).send({status:false,message:"This email is already Registered Please give another Email"})
 
         if(!keyValid(files))  return res.status(400).send({status:false,message:"profile Image is Mandatory"})
+
+        if(!isValidImg.test(profileImage)) return res.status(400).send({status:false,message:"profile Image should be valid with this extensions .png|.jpg|.gif"})
      
         if(!isValid(phone)) return res.status(400).send({status:false,message:"Phone is mandatory and should have non empty Number"})
  
@@ -90,4 +94,48 @@ const createUser=async function(req,res){
     }
 }
 
-module.exports={createUser}
+
+
+const loginUser = async function(req, res) {
+    try {
+        let data = req.body
+        const { email, password } = data
+        //=====================Checking the validation=====================//
+        if (!keyValid(data)) return res.status(400).send({ status: false, msg: "Email and Password Required !" })
+
+        //=====================Validation of EmailID=====================//
+        if (!email) return res.status(400).send({ status: false, msg: "email is required" })
+
+
+        //=====================Validation of Password=====================//
+        if (!password) return res.status(400).send({ status: false, msg: "password is required" })
+
+        //===================== Checking User exsistance using Email and password=====================//
+        const user = await userModel.findOne({ email: email })
+        if (!user) return res.status(400).send({ status: false, msg: "Email is Invalid Please try again !!" })
+
+        const verifyPassword=await bcrypt.compare(password,user.password)
+
+        if(!verifyPassword) return res.status(400).send({ status: false, msg: "Password is Invalid Please try again !!" })
+
+
+        //===================== Creating Token Using JWT =====================//
+        const token = jwt.sign({
+            userId: user._id.toString()
+        }, "this is a private key",{expiresIn:'25h'})
+
+        res.setHeader("x-api-key", token)
+
+       let obj={
+        userId:user._id,
+        token:token
+       }
+
+        res.status(200).send({ status: true, message:"User login successfull", data: obj})
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+module.exports={createUser,loginUser}

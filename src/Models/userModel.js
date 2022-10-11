@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
             trim:true
         }, // s3 link
         phone: {
-            type:String, 
+            type:Number, 
             required:true,
             unique:true,
             trim:true

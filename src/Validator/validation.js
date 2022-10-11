@@ -1,4 +1,4 @@
-
+const mongoose = require ("mongoose")
 const isValid = function (value) {
   if (typeof value === 'undefined' || value === null) return false
   if (typeof value === 'string' && value.trim().length === 0) return false
@@ -31,4 +31,9 @@ const keyValid = function (value) {
   return false;
 };
 
-module.exports = { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, isValidImg, validString }
+const objectIdValid = function (value) {
+  return mongoose.Types.ObjectId.isValid(value);
+};
+
+
+module.exports = { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, isValidImg, validString ,objectIdValid}

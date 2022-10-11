@@ -1,5 +1,5 @@
 const userModel=require("../Models/userModel")
-const {isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid,isValidImg, validString}=require('../Validator/validation')
+const {isValid,isValidName,isvalidEmail,isvalidMobile,isValidPassword,pincodeValid,keyValid,isValidImg, validString,objectIdValid}=require('../Validator/validation')
 
 const imgUpload=require("../AWS/aws-S3")
 
@@ -222,5 +222,22 @@ const updateUser=async function(req,res){
     }
 }
 
+let getById = async (req, res) => {
+    try {
+        const UserIdData = req.params.userId
 
-module.exports={createUser,loginUser,updateUser}
+        if (!objectIdValid(UserIdData)) return res.status(400).send({ status: false, message: 'userId is not valid' })
+
+        let user = await userModel.findById(UserIdData)
+
+        if (!user) return res.status(404).send({ status: false, messgage: ' user not found' })
+
+        return res.status(200).send({ status: true, message: 'User profile details', data: user })
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, error: error.message })
+    }
+}
+
+
+module.exports={createUser,loginUser,updateUser,getById}

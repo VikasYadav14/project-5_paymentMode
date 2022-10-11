@@ -1,12 +1,14 @@
 const express = require('express')
 const router = express.Router()
-const userController=require('../Controllers/userController')
+const {createUser, updateUser}=require('../Controllers/userController')
 
 router.get("/test",function(req,res){
     return res.send({data:"This to test"})
 })
 
-router.post("/register",userController.createUser)
+router.post("/register", createUser)
+
+router.put("/user/:userId/profile", updateUser)
 
 
 

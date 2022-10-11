@@ -12,7 +12,7 @@ const createUser=async function(req,res){
 
         if(!keyValid(data)) return res.status(400).send({status:false,message:"Please Enter data to Create the User"})
 
-        const{fname,lname,email,profileImage,phone,password,address}=data
+        const{fname,lname,email,phone,password,address}=data
         
         if(!isValid(fname)) return res.status(400).send({status:false,message:"fname is mandatory and should have non empty String"})
 
@@ -90,4 +90,85 @@ const createUser=async function(req,res){
     }
 }
 
-module.exports={createUser}
+const updateUser=async function(req,res){
+    try {
+        let userId = req.params.userId
+
+        const files=req.files
+
+        if(!keyValid(req.body)) return res.status(400).send({status:false,message:"Please Enter data to Create the User"})
+
+        const{fname,lname,email,phone,password,address}=req.body
+
+        const data = {}
+        if(fname){
+            if(!isValidName.test(fname)) return res.status(400).send({status:false,message:"Please Provide fname in valid formate and Should Starts with Capital Letter"})
+            data.fname=fname
+        }
+
+        if(lname){
+            if(!isValidName.test(lname)) return res.status(400).send({status:false,message:"Please Provide lname in valid formate and Should Starts with Capital Letter"})
+            data.lname=lname
+        }
+
+        if(email){
+            if(!isvalidEmail.test(email)) return res.status(400).send({status:false,message:"email should be in  valid Formate"})
+            if(await userModel.findOne({email})) return res.status(400).send({status:false,message:"This email is already Registered Please give another Email"})
+            data.email=email
+        }
+     
+        if(phone){
+            if(!isvalidMobile.test(phone)) return res.status(400).send({status:false,message:"please provide Valid phone Number with 10 digits starts with 6||7||8||9"})
+            if(await userModel.findOne({phone})) return res.status(400).send({status:false,message:"This Phone is already Registered Please give another Phone"})
+            data.phone=phone
+        }
+        
+        if(password){
+            if(!isValidPassword(password)) return res.status(400).send({status:false,message:"please provide Valid password with 1st letter should be Capital letter and contains spcial character with Min length 8 and Max length 15"})
+            data.password=await bcrypt.hash(password,10)
+        }
+
+        if(address){
+            const addressParse=JSON.parse(address)
+        
+            if(addressParse.shipping){
+                if(addressParse.shipping.street){
+                    data.address.shipping.street=addressParse.shipping.street
+                }
+    
+                if(addressParse.shipping.city){
+                    data.address.shipping.city=addressParse.shipping.city
+                }
+                if(addressParse.shipping.pincode){
+                    if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in Shipping"})
+                    data.addressParse.shipping.pincode=addressParse.shipping.pincode
+                }
+            }            
+            if(addressParse.billing){
+                if(addressParse.billing.street){
+                    data.address.billing.street=addressParse.billing.street
+                }
+    
+                if(addressParse.billing.city){
+                    data.address.billing.city=addressParse.billing.city
+                }
+                if(addressParse.billing.pincode){
+                    if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in billing"})
+                    data.addressParse.billing.pincode=addressParse.billing.pincode
+                }
+            }
+        }
+
+        if(files){
+            data.profileImage = await imgUpload.uploadFile(files[0])
+        }
+
+        const newUser = await userModel.findByIdAndUpdate(userId,data,{new:true})
+
+        return res.status(201).send({ status: true, message:"User updated successfully", data: newUser })
+
+    } catch (error) {
+        return res.status(500).send({error:error.message})
+    }
+}
+module.exports={createUser,updateUser}

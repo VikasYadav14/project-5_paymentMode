@@ -30,4 +30,28 @@ const authentication = function (req, res, next) {
     }
   };
    
+// const authentication = function (req, res, next) {
+//   try {
+//     let token = req.headers["authorization"];
+
+//     if (!token) return res.status(400).send({ status: false, message: "Please set token in header" });
+
+//     let tokenSplit= token.split(' ')
+
+//     let decodedToken = jwt.verify(tokenSplit[1], "this is a private key", { ignoreExpiration: true }, function (error, done) {
+//       if (error) {
+//         return res.status(400).send({ status: false, message: "Token is Invalid" });
+//       }
+//       return done;
+//     })
+
+//     if (decodedToken.exp < Date.now() / 1000) return res.status(400).send({ status: false, message: "Token is Expired, Please relogin" });
+  
+//     req.decodedToken = decodedToken.userId
+//     next()
+//   } catch (error) {
+//     return res.status(500).send({ status: false, message: error.message })
+//   }
+
+// } 
 module.exports= {authentication}

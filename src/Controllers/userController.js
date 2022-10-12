@@ -182,6 +182,7 @@ const updateUser=async function(req,res){
         const{fname,lname,email,phone,password,address}=body
 
         const data = {}
+        
         if(!validString(fname)) return res.status(400).send({status:false,message:"fname can not be empty"})
         if(fname){
             if(!isValidName.test(fname)) return res.status(400).send({status:false,message:"Please Provide fname in valid formate and Should Starts with Capital Letter"})
@@ -225,50 +226,87 @@ const updateUser=async function(req,res){
 
         if(!validString(address)) return res.status(400).send({status:false,message:"address can not be empty"})
         if(address){
-          
+            console.log(address)
             const addressParse=JSON.parse(address)
-            
-            if(!validString(address.shipping)) return res.status(400).send({status:false,message:"Shipping can not be empty"})
+            data.address=addressParse
+
             if(addressParse.shipping){
+            if(keyValid(addressParse.shipping)){
+
+            if(addressParse.hasOwnProperty('shipping')){
 
                 if(!validString(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street can not be empty in Shipping"})
-                if(addressParse.shipping.street){
+                if(addressParse.shipping.hasOwnProperty('street')){
                     data.address.shipping.street=addressParse.shipping.street
+                }else{
+                    data.address.shipping.street=user.address.shipping.street
                 }
                 
-                if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in Shipping"})
-                if(addressParse.shipping.city){
+                
+                if(addressParse.shipping.hasOwnProperty('city')){
+                    if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in Shipping"})
                     data.address.shipping.city=addressParse.shipping.city
+                }else{
+                    data.address.shipping.city=user.address.shipping.city
                 }
-
+ 
                 if(!validString(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Pincode can not be empty in Shipping"})
-                if(addressParse.shipping.pincode){
-                    if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in Shipping"})
-                    data.addressParse.shipping.pincode=addressParse.shipping.pincode
-                }
-            }   
-            
-            if(!validString(addressParse.billing)) return res.status(400).send({status:false,message:"Billing can not be empty"})
-            if(addressParse.billing){
-
-                if(!validString(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street can not be empty in billing"})
-                if(addressParse.billing.street){
-                    data.address.billing.street=addressParse.billing.street
-                }
                 
-                if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in billing"})
-                if(addressParse.billing.city){
-                    data.address.billing.city=addressParse.billing.city
+                if(addressParse.shipping.hasOwnProperty('pincode')){
+                    if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in Shipping"})
+                    data.address.shipping.pincode=addressParse.shipping.pincode
+                }else{
+                    data.address.shipping.pincode=user.address.shipping.pincode
                 }
-
-                if(!validString(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Pincode can not be empty in billing"})
-                if(addressParse.billing.pincode){
-                    if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in billing"})
-                    data.addressParse.billing.pincode=addressParse.billing.pincode
-                }
-            }
+              
         }
+    }else{
+        return res.status(400).send({status:false,message:"Shipping can not be empty"})
+    }
+}else{
+    data.address.shipping=user.address.shipping
+}
+            
 
+    if(addressParse.billing){
+    if(keyValid(addressParse.billing)){
+
+        if(addressParse.hasOwnProperty('billing')){
+
+            if(!validString(addressParse.billing.street)) return res.status(400).send({status:false,message:"Street can not be empty in billing"})
+            if(addressParse.billing.hasOwnProperty('street')){
+                data.address.billing.street=addressParse.billing.street
+            }else{
+                data.address.billing.street=user.address.billing.street
+            }
+            
+            
+            if(addressParse.billing.hasOwnProperty('city')){
+                if(!validString(addressParse.billing.city)) return res.status(400).send({status:false,message:"City can not be empty in billing"})
+                data.address.billing.city=addressParse.billing.city
+            }else{
+                data.address.billing.city=user.address.billing.city
+            }
+
+            if(!validString(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Pincode can not be empty in billing"})
+            
+            if(addressParse.billing.hasOwnProperty('pincode')){
+                if(!pincodeValid.test(addressParse.billing.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in billing"})
+                data.address.billing.pincode=addressParse.billing.pincode
+            }else{
+                data.address.billing.pincode=user.address.billing.pincode
+            }
+          
+        }
+    }else{
+    return res.status(400).send({status:false,message:"billing can not be empty"})
+    }
+}else{
+    data.address.billing=user.address.billing
+}
+        }
+ 
+        console.log(data)
         const newUser = await userModel.findByIdAndUpdate(userId,data,{new:true})
 
         return res.status(201).send({ status: true, message:"User updated successfully", data: newUser })

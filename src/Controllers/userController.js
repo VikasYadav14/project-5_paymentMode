@@ -226,7 +226,7 @@ const updateUser=async function(req,res){
 
         if(!validString(address)) return res.status(400).send({status:false,message:"address can not be empty"})
         if(address){
-            console.log(address)
+          
             const addressParse=JSON.parse(address)
             data.address=addressParse
 

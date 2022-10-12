@@ -10,7 +10,7 @@ const createProduct=async function(req,res){
         const data=req.body
         const files=req.files
 
-        if(!keyValid(data)) return res.status(400).send({status:false,message:"Please Enter data to Create the Product"})
+        if(!isValid(files)) return res.status(400).send({status:false,message:"Please Enter data to Create the Product"})
 
         const{title,description,price,currencyId,currencyFormat,isFreeShipping,style,availableSizes,installments}=data
         
@@ -22,15 +22,15 @@ const createProduct=async function(req,res){
 
         if(!isValid(price)) return res.status(400).send({status:false,message:"Price is mandatory and should have non empty Number"})
 
-        if(!priceValid.test(price)) return res.status(400).send({status:false,message:"email should be in  valid Formate"})
+        if(!priceValid.test(price)) return res.status(400).send({status:false,message:"price should be in  valid Formate with Numbers || Decimals"})
 
-        if(!keyValid(currencyId))  return res.status(400).send({status:false,message:"profile Image is Mandatory"})
+        if(!isValid(currencyId))  return res.status(400).send({status:false,message:"currencyId is Mandatory and should have non empty Number "})
      
-        if(!/^INR$/.test(currencyId)) return res.status(400).send({status:false,message:`currencyId Should be in this form "INR" only`})
+        if(!/^INR$/.test(currencyId)) return res.status(400).send({status:false,message:`currencyId Should be in this form 'INR' only`})
 
-        if(!isValid(currencyFormat)) return res.status(400).send({status:false,message:"currencyFormat is mandatory and should have non empty Number"})
+        if(!isValid(currencyFormat)) return res.status(400).send({status:false,message:"currencyFormat is mandatory and should have non empty string"})
  
-        if(!/^₹$/.test(currencyFormat)) return res.status(400).send({status:false,message:`currencyFormat Should be in this form "₹" only`})
+        if(!/^₹$/.test(currencyFormat)) return res.status(400).send({status:false,message:`currencyFormat Should be in this form '₹' only`})
 
         if(isFreeShipping){
            if (!/^(true|false)$/.test(isFreeShipping)) return res.status(400).send({status:false,message:`isFreeShipping Should be in boolean with small letters`})
@@ -38,32 +38,39 @@ const createProduct=async function(req,res){
         
         if(!keyValid(files))  return res.status(400).send({status:false,message:"product Image is Mandatory"})
 
+
         if(style){
             if(!validString(style)) return res.status(400).send({status:false,message:"Style should have non empty String"})
         }
 
-        if(!isValid(currencyFormat)) return res.status(400).send({status:false,message:"currencyFormat is mandatory and should have non empty Number"})
+        if(!isValid(availableSizes)) return res.status(400).send({status:false,message:"availableSizes is mandatory and should have non empty String"})
+  
+        let size=availableSizes.split(',').map(x=>x.trim())
+ 
+        for(let i=0;i<size.length;i++){
+            if(!(["S", "XS","M","X", "L","XXL", "XL"].includes(size[i]))) return res.status(400).send({status:false,message:`availableSizes should have only these Sizes ['S' || 'XS'  || 'M' || 'X' || 'L' || 'XXL' || 'XL']`})
+        }
+   
+        if(installments){
+            if(!validString(installments)) return res.status(400).send({status:false,message:"installments should have non empty Number"})
 
+            if(!/^\d+$/.test(installments)) return res.status(400).send({status:false,message:"installments should have only Number"})
+        }
 
-
-        if(!isValid(password)) return res.status(400).send({status:false,message:"Password is mandatory and should have non empty String"})
-
-        if(!isValidPassword(password)) return res.status(400).send({status:false,message:"please provide Valid password with 1st letter should be Capital letter and contains spcial character with Min length 8 and Max length 15"})
-
-        if(!isValid(address)) return res.status(400).send({status:false,message:"Address is mandatory"})
-
-        
-        let productImage=await imgUpload.uploadFile(files[0])
+        let productImage1=await imgUpload.uploadFile(files[0])
 
         let obj={
-            fname,lname,email,productImage:productImage,address:addressParse
+            title,description,price,currencyId,currencyFormat,isFreeShipping,productImage:productImage1,style,availableSizes:size,installments
         }
     
-        const newUser = await userModel.create(obj)
+        const newProduct = await productModel.create(obj)
 
-        return res.status(201).send({ status: true, message:"User created successfully", data: newUser })
+        return res.status(201).send({ status: true, message:"User created successfully", data: newProduct })
 
     } catch (error) {
         return res.status(500).send({error:error.message})
     }
 }
+
+
+module.exports={createProduct}

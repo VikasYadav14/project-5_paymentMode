@@ -166,9 +166,9 @@ const updateUser=async function(req,res){
         let userId = req.params.userId
         let body=req.body
         const decodedToken=req.decodedToken
-
+        
         const files=req.files
-
+       
         if (!objectIdValid(userId)) return res.status(400).send({ status: false, message: 'userId is not valid' })
 
         let user = await userModel.findById(userId)
@@ -202,14 +202,20 @@ const updateUser=async function(req,res){
             data.email = email
         }
 
+        
         if(files){
+            
             if(keyValid(files)){
-        if(!(files && files.length>0)){
-           return res.status(400).send({status:false,message:"Profile Image can't be Empty"})
+            if(files&&files.length==0){
+                return res.status(400).send({status:false,message:"Profile Image can't be Empty"})
+               
+            }
+            data.profileImage = await imgUpload.uploadFile(files[0]) 
+        }                     
+         
         }
-        data.profileImage = await imgUpload.uploadFile(files[0])
-                             }
-        }
+    
+
 
         if(!validString(phone)) return res.status(400).send({status:false,message:"phone can not be empty"})
         if(phone){
@@ -243,8 +249,8 @@ const updateUser=async function(req,res){
                 }
                 
                 
+                if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in Shipping"})
                 if(addressParse.shipping.hasOwnProperty('city')){
-                    if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in Shipping"})
                     data.address.shipping.city=addressParse.shipping.city
                 }else{
                     data.address.shipping.city=user.address.shipping.city
@@ -305,6 +311,7 @@ const updateUser=async function(req,res){
     data.address.billing=user.address.billing
 }
         }
+        
  
         console.log(data)
         const newUser = await userModel.findByIdAndUpdate(userId,data,{new:true})
@@ -315,6 +322,7 @@ const updateUser=async function(req,res){
         return res.status(500).send({error:error.message})
     }
 }
+
 
 
 

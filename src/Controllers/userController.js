@@ -180,11 +180,10 @@ const updateUser = async function (req, res) {
 
         const data = {}
         if (files) {
-            if ((files.length == 0)) {
-                return res.status(400).send({ status: false, message: "please provide profile image" })
+            if (!validString(body.profileImage)) return res.status(400).send({ status: false, message: "please provide profile image" })
+            if (files.length>0) {
+                data.profileImage = await imgUpload.uploadFile(files[0])
             }
-            var updatedProfileImage = await imgUpload.uploadFile(files[0])
-            data.profileImage = updatedProfileImage
         }
 
         const { fname, lname, email, phone, password, address } = body

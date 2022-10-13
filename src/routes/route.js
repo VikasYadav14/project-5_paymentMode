@@ -1,4 +1,5 @@
 const express = require('express')
+const getProducts = require('../Controllers/productController')
 const router = express.Router()
 const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
 const {authentication}=require("../MiddleWare/auth")
@@ -17,8 +18,7 @@ router.put("/user/:userId/profile",authentication, updateUser)
 
 
 
-
-
+router.get("/get/:productId", getProducts)
 
 
 // for worng route=============================>

@@ -33,5 +33,9 @@ const objectIdValid = function (value) {
   return mongoose.Types.ObjectId.isValid(value);
 };
 
+const priceValid = function (value){
+  const number = /^(?:0|[1-9]\d*)(?:\.(?!.*000)\d+)?$/
+  return number.test(value)
+}
 
-module.exports = { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, validString ,objectIdValid}
+module.exports = { isValid,priceValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, validString ,objectIdValid}

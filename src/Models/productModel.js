@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose')
 
 
@@ -52,7 +51,7 @@ const productSchema = new mongoose.Schema({
             trim:true
         }, 
         deletedAt: {
-            type:Date
+            type:String
         }, 
         isDeleted: {
             type:Boolean, 
@@ -62,3 +61,5 @@ const productSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model("product", productSchema)
+
+

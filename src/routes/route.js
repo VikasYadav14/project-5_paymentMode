@@ -1,8 +1,9 @@
 const express = require('express')
-const getProducts = require('../Controllers/productController')
 const router = express.Router()
-const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
 const {authentication}=require("../MiddleWare/auth")
+
+const { createProduct, getProducts, deleteProductById } = require('../Controllers/productController')
+const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
 
 router.get("/test",function(req,res){
     return res.send({data:"This to test"})
@@ -16,9 +17,11 @@ router.get("/user/:userId/profile",authentication ,getById)
 
 router.put("/user/:userId/profile",authentication, updateUser)
 
+router.post("/products", createProduct)
 
+router.get("/products", getProducts)
 
-router.get("/get/:productId", getProducts)
+router.delete("/products/:productId", deleteProductById)
 
 
 // for worng route=============================>

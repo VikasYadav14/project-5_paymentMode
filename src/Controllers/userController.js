@@ -164,11 +164,10 @@ let getById = async (req, res) => {
 const updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
-        let body=req.body
-        const decodedToken=req.decodedToken
+        let body = req.body
+        const decodedToken = req.decodedToken
 
-        const files=req.files
-
+        const files = req.files
         if (!objectIdValid(userId)) return res.status(400).send({ status: false, message: 'userId is not valid' })
 
         let user = await userModel.findById(userId)
@@ -187,20 +186,12 @@ const updateUser = async function (req, res) {
             }
         }
 
-        if(files){
-            if(keyValid(files)){
-        if(!(files && files.length>0)){
-           return res.status(400).send({status:false,message:"Profile Image can't be Empty"})
-        }
-        data.profileImage = await imgUpload.uploadFile(files[0])
-                             }
-        }
+        const { fname, lname, email, phone, password, address } = body
 
-        if(!validString(phone)) return res.status(400).send({status:false,message:"phone can not be empty"})
-        if(phone){
-            if(!isvalidMobile.test(phone)) return res.status(400).send({status:false,message:"please provide Valid phone Number with 10 digits starts with 6||7||8||9"})
-            if(await userModel.findOne({phone})) return res.status(400).send({status:false,message:`Unable to update phone. ${phone} is already registered.`})
-            data.phone=phone
+        if (!validString(fname)) return res.status(400).send({ status: false, message: "fname can not be empty" })
+        if (fname) {
+            if (!isValidName.test(fname)) return res.status(400).send({ status: false, message: "Please Provide fname in valid formate and Should Starts with Capital Letter" })
+            data.fname = fname
         }
 
         if (!validString(lname)) return res.status(400).send({ status: false, message: "lname can not be empty" })
@@ -209,49 +200,34 @@ const updateUser = async function (req, res) {
             data.lname = lname
         }
 
-        if(!validString(address)) return res.status(400).send({status:false,message:"address can not be empty"})
-        if(address){
-          
-            const addressParse=JSON.parse(address)
-            data.address=addressParse
-
-            if(addressParse.shipping){
-            if(keyValid(addressParse.shipping)){
-
-            if(addressParse.hasOwnProperty('shipping')){
-
-                if(!validString(addressParse.shipping.street)) return res.status(400).send({status:false,message:"Street can not be empty in Shipping"})
-                if(addressParse.shipping.hasOwnProperty('street')){
-                    data.address.shipping.street=addressParse.shipping.street
-                }else{
-                    data.address.shipping.street=user.address.shipping.street
-                }
-                
-                
-                if(addressParse.shipping.hasOwnProperty('city')){
-                    if(!validString(addressParse.shipping.city)) return res.status(400).send({status:false,message:"City can not be empty in Shipping"})
-                    data.address.shipping.city=addressParse.shipping.city
-                }else{
-                    data.address.shipping.city=user.address.shipping.city
-                }
- 
-                if(!validString(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Pincode can not be empty in Shipping"})
-                
-                if(addressParse.shipping.hasOwnProperty('pincode')){
-                    if(!pincodeValid.test(addressParse.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide valid Pincode with min 4 number || max 6 number in Shipping"})
-                    data.address.shipping.pincode=addressParse.shipping.pincode
-                }else{
-                    data.address.shipping.pincode=user.address.shipping.pincode
-                }
-              
+        if (!validString(email)) return res.status(400).send({ status: false, message: "Email can not be empty" })
+        if (email) {
+            if (!isvalidEmail.test(email)) return res.status(400).send({ status: false, message: "email should be in  valid Formate" })
+            if (await userModel.find({ email })) return res.status(400).send({ status: false, message: `Unable to update email. ${email} is already registered.` })
+            data.email = email
         }
-    }else{
-        return res.status(400).send({status:false,message:"Shipping can not be empty"})
-    }
-}else{
-    data.address.shipping=user.address.shipping
-}
-            
+
+        if (!validString(phone)) return res.status(400).send({ status: false, message: "phone can not be empty" })
+        if (phone) {
+            if (!isvalidMobile.test(phone)) return res.status(400).send({ status: false, message: "please provide Valid phone Number with 10 digits starts with 6||7||8||9" })
+            if (await userModel.findOne({ phone })) return res.status(400).send({ status: false, message: `Unable to update phone. ${phone} is already registered.` })
+            data.phone = phone
+        }
+
+        if (!validString(password)) return res.status(400).send({ status: false, message: "password can not be empty" })
+        if (password) {
+            if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "please provide Valid password with 1st letter should be Capital letter and contains spcial character with Min length 8 and Max length 15" })
+            data.password = await bcrypt.hash(password, 10)
+        }
+
+        if (!validString(address)) return res.status(400).send({ status: false, message: "address can not be empty" })
+        if (address) {
+            data.address = user.address
+            const addressParse = JSON.parse(address)
+
+            if (addressParse.shipping) {
+                if (!validString(addressParse.shipping.street)) return res.status(400).send({ status: false, message: "Street can not be empty in Shipping" })
+                if (addressParse.shipping.street) { data.address.shipping.street = addressParse.shipping.street }
 
                 if (!validString(addressParse.shipping.city)) return res.status(400).send({ status: false, message: "City can not be empty in Shipping" })
                 if (addressParse.shipping.city) { data.address.shipping.city = addressParse.shipping.city }
@@ -276,9 +252,8 @@ const updateUser = async function (req, res) {
 
             }
         }
- 
-        console.log(data)
-        const newUser = await userModel.findByIdAndUpdate(userId,data,{new:true})
+
+        const newUser = await userModel.findByIdAndUpdate(userId, data, { new: true })
 
         return res.status(201).send({ status: true, message: "User updated successfully", data: newUser })
 
@@ -289,4 +264,4 @@ const updateUser = async function (req, res) {
 
 
 
-module.exports={createUser,loginUser,updateUser,getById}
+module.exports = { createUser, loginUser, updateUser, getById }

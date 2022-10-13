@@ -1,5 +1,5 @@
 const express = require('express')
-const { createProduct } = require('../Controllers/productController')
+const { createProduct, updateProduct,getProductById } = require('../Controllers/productController')
 const router = express.Router()
 const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
 const {authentication}=require("../MiddleWare/auth")
@@ -19,9 +19,9 @@ router.put("/user/:userId/profile",authentication, updateUser)
 
 router.post("/products", createProduct)
 
+router.put('/products/:productId',updateProduct)
 
-
-
+router.get('/products/:productId',getProductById)
 // for worng route=============================>
 
 router.all('/*/',async function(req,res){

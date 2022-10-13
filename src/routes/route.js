@@ -1,4 +1,5 @@
 const express = require('express')
+const { createProduct } = require('../Controllers/productController')
 const router = express.Router()
 const {createUser, updateUser, loginUser, getById}=require('../Controllers/userController')
 const {authentication}=require("../MiddleWare/auth")
@@ -16,7 +17,7 @@ router.get("/user/:userId/profile",authentication ,getById)
 router.put("/user/:userId/profile",authentication, updateUser)
 
 
-
+router.post("/products", createProduct)
 
 
 

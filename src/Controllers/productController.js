@@ -32,17 +32,15 @@ const createProduct=async function(req,res){
  
         if(!/^₹$/.test(currencyFormat)) return res.status(400).send({status:false,message:`currencyFormat Should be in this form '₹' only`})
 
+        if(!validString(isFreeShipping)) return res.status(400).send({status:false,message:"isFreeShipping should have non empty"})
         if(isFreeShipping){
            if (!/^(true|false)$/.test(isFreeShipping)) return res.status(400).send({status:false,message:`isFreeShipping Should be in boolean with small letters`})
         }
         
         if(!keyValid(files))  return res.status(400).send({status:false,message:"product Image is Mandatory"})
 
-
-        if(style){
-            if(!validString(style)) return res.status(400).send({status:false,message:"Style should have non empty String"})
-        }
-
+        if(!validString(style)) return res.status(400).send({status:false,message:"Style should have non empty String"})
+        
         if(!isValid(availableSizes)) return res.status(400).send({status:false,message:"availableSizes is mandatory and should have non empty String"})
   
         let size=availableSizes.split(',').map(x=>x.trim())
@@ -51,9 +49,8 @@ const createProduct=async function(req,res){
             if(!(["S", "XS","M","X", "L","XXL", "XL"].includes(size[i]))) return res.status(400).send({status:false,message:`availableSizes should have only these Sizes ['S' || 'XS'  || 'M' || 'X' || 'L' || 'XXL' || 'XL']`})
         }
    
+        if(!validString(installments)) return res.status(400).send({status:false,message:"installments should have non empty Number"})
         if(installments){
-            if(!validString(installments)) return res.status(400).send({status:false,message:"installments should have non empty Number"})
-
             if(!/^\d+$/.test(installments)) return res.status(400).send({status:false,message:"installments should have only Number"})
         }
 

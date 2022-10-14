@@ -77,7 +77,7 @@ async function getProducts(req, res) {
 
 
         if (keyValid(filter)) {
-            let { name, size, priceSort, priceGreaterThan, priceLessThan } = filter;
+            let { name, size, priceSort, price } = filter;
 
             if (!validString(size)) { return res.status(400).send({ status: false, message: "If you select size than it should have non empty" }) }
             if (size) {
@@ -92,21 +92,26 @@ async function getProducts(req, res) {
                 query.title = { $regex: regexName};
             }
 
-            if (!validString(priceGreaterThan)) return res.status(400).send({ status: false, message: "If you select priceGreaterThan than it should have non empty" })
-            if (priceGreaterThan) {
-                if (!priceValid(priceGreaterThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceGreaterThan" }) }
-                query.price = { '$gt': priceGreaterThan }
-            }
+            if(!validString(price)) return res.status(400).send({ status: false, message: "If you select price than it should have non empty" })
+            if(price){
+                price = JSON.parse(price)
 
-            if (!validString(priceLessThan)) return res.status(400).send({ status: false, message: "If you select priceLessThan than it should have non empty" })
-            if (priceLessThan) {
-                if (!priceValid(priceLessThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceLessThan" }) }
-                query['price'] = { '$lt': priceLessThan }
+                if (!validString(price.priceGreaterThan)) return res.status(400).send({ status: false, message: "If you select priceGreaterThan than it should have non empty" })
+                if (price.priceGreaterThan) {
+                    if (!priceValid(price.priceGreaterThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceGreaterThan" }) }
+                    query.price = { '$gt': price.priceGreaterThan }
+                }
+    
+                if (!validString(price.priceLessThan)) return res.status(400).send({ status: false, message: "If you select priceLessThan than it should have non empty" })
+                if (price.priceLessThan) {
+                    if (!priceValid(price.priceLessThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceLessThan" }) }
+                    query['price'] = { '$lt': price.priceLessThan }
+                }
+                if (price.priceLessThan && price.priceGreaterThan) {
+                    query.price = { '$lte': price.priceLessThan, '$gte': price.priceGreaterThan }
+                }
             }
-            if (priceLessThan && priceGreaterThan) {
-                query.price = { '$lte': priceLessThan, '$gte': priceGreaterThan }
-            }
-
+        
             if (!validString(priceSort)) return res.status(400).send({ status: false, message: "If you select priceSort than it should have non empty" })
             if (priceSort) {
                 if ((priceSort == 1 || priceSort == -1)) {

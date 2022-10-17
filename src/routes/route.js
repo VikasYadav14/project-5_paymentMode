@@ -4,7 +4,7 @@ const { authentication } = require("../MiddleWare/auth")
 
 const { createUser, updateUser, loginUser, getById } = require('../Controllers/userController')
 const { createProduct, getProducts, getProductById, updateProduct, deleteProductById } = require('../Controllers/productController')
-const { addToCart,cartUpdate } = require('../Controllers/cartController')
+const { addToCart,cartUpdate, getCartDetails,deletecart } = require('../Controllers/cartController')
 
 router.get("/test", function (req, res) {
     return res.send({ data: "This to test" })
@@ -28,8 +28,10 @@ router.delete("/products/:productId", deleteProductById)
 // for cart route=================================>
 
 router.post("/users/:userId/cart", authentication, addToCart)
-
 router.put("/users/:userId/cart",authentication,cartUpdate)
+router.delete("/users/:userId/cart",authentication,getCartDetails)
+router.delete("/users/:userId/cart",authentication,deletecart)
+
 
 // for worng route=============================>
 

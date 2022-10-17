@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const cartModel = require("../Models/cartModel");
 const productModel = require("../Models/productModel");
 const userModel = require("../Models/userModel");
-const { isValid, keyValid } = require("../Validator/validation");
+const { isValid, keyValid,objectIdValid } = require("../Validator/validation");
 
 
 async function addToCart(req, res) {
@@ -80,4 +80,93 @@ async function addToCart(req, res) {
 }
 
 
-module.exports = { addToCart }
+const cartUpdate=async function(req,res){
+    try {
+
+        let userId = req.params.userId
+
+        let body = req.body
+
+        const decodedToken = req.decodedToken
+
+        if (!objectIdValid(userId)) return res.status(400).send({ status: false, message: 'userId is not valid' })
+
+        let user = await userModel.findById(userId)
+
+        if (!user) return res.status(404).send({ status: false, messgage: ' user not found' })
+
+        if (userId !== decodedToken) return res.status(403).send({ status: false, messgage: `Unauthorized access!, You can't update cart` })
+
+        let {cartId,productId,removeProduct}=body
+
+        cartId=cartId.toString()
+        productId=productId.toString()
+
+        if(!keyValid(body)) return res.status(400).send({
+            status:false,message:"Please provide data to update the cart"
+        })
+
+        if (!objectIdValid(cartId)) { return res.status(400).send({ status: false, msg: "Invalid cartId" }) }
+
+        let cartDetails=await cartModel.findOne(cartId)
+
+        if(!cartDetails) return res.status(400).send({ status: false, message: "No cart Exist with provided CartId" })
+
+        if (!objectIdValid(productId)) { return res.status(400).send({ status: false, msg: "Invalid productId" }) }
+
+        let productDetails=await productModel.findOne({_id:productId,isDeleted:false})
+
+        if(!productDetails) return res.status(400).send({ status: false, message: "No product Exist with provided productId or might be deleted" })
+
+        let productCart=await cartModel.findOne({items:{$elemMatch:{productId:{$eq:productId}}}})
+
+        if(!productCart) return res.status(400).send({ status: false, message: `No product Exist in cart with given productId ${productId}`})
+
+        if(!/^[0-1\|\(\)\&]$/.test(removeProduct)) return res.status(400).send({ status: false, message: "removeProduct should contains 1 for decrement of quantity by 1 || 0 for remove the product from cart" })
+
+        let findProduct=cartDetails.items.find(x=>x.productId.toString()==productId)
+
+        if(removeProduct==0){
+            let sumTotal=cartDetails.totalPrice-(productDetails.price*findProduct.quantity)
+
+            await cartModel.findOneAndUpdate({_id:cartId},{$pull:{items:{productId:productId}}},{new:true})
+
+            let sumItems=cartDetails.totalItems-1
+            
+            let deletedItem=await cartModel.findOneAndUpdate({_id:cartId},{$set:{totalPrice:sumTotal,totalItems:sumItems}},{new:true})
+
+            return res.status(200).send({status:true,message:"Successfully removed the prodect",data:deletedItem})
+            }
+
+            let sumTotal1=cartDetails.totalPrice-productDetails.price
+
+            let itemsArray=cartDetails.items
+
+            for(let i=0;i<itemsArray.length;i++)
+            {
+                if(itemsArray[i].productId.toString()==productId){
+                    itemsArray[i].quantity=itemsArray[i].quantity-1
+
+                    if(itemsArray[i].quantity<1){
+                        await cartModel.findByIdAndUpdate({_id:cartId},{$pull:{item:{productId:productId}}},{new:true})
+
+                        let sumItems=cartDetails.totalItems-1
+
+                        let data1=await cartDetails.findOneAndUpdate({_id:cartId},{$set:{totalPrice:sumTotal1,totalItems:sumItems}},{new:true})
+
+                        return res.status(200).send({status:true,message:"No product exists for productId",data:data1})
+                    }
+                }
+            }
+            let res=await cartModel.findOneAndUpdate({_id:cartId},{$set:{items:itemsArray,totalPrice:sumTotal1}},{new:true})
+
+            return res.status(200).send({status:true,message:"product quantity is reduced by 1",data:data1})
+    
+    } catch (error) {
+        return res.status(500).send({status:false,error:error.message})
+    }
+}
+
+
+
+module.exports = { addToCart,cartUpdate }

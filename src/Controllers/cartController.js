@@ -24,14 +24,12 @@ async function addToCart(req, res) {
         let checkProduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!checkProduct) return res.status(404).send({ status: false, message: "Product Do Not Exists or DELETED" })
 
-        let checkCart = await cartModel.findOne({userId})
+        let checkCart = await cartModel.findOne({ userId })
 
-        if (cartId) {
-            if (!isValid(cartId)) return res.status(400).send({ status: false, message: "Please Provide ProductId" })
+        if (checkCart) {
+            if (!isValid(cartId)) return res.status(400).send({ status: false, message: "Please Provide cartId" })
             if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "Invalid ProductId" })
             if (checkCart._id != cartId) return res.status(403).send({ status: false, message: "you are not authorized for this cartId" })
-        }
-        if (checkCart) {
 
             let arr2 = checkCart.items
 
@@ -45,7 +43,7 @@ async function addToCart(req, res) {
             if (compareProductId == -1) arr2.push(productAdded)
             else arr2[compareProductId].quantity += 1
 
-            let totalPriceUpdated = checkCartExistsForUserId.totalPrice + (checkProduct.price)
+            let totalPriceUpdated = checkCart.totalPrice + (checkProduct.price)
 
             let totalItemsUpdated = arr2.length
 
@@ -57,28 +55,25 @@ async function addToCart(req, res) {
             let updatedData = await cartModel.findOneAndUpdate({ userId: userId }, productAdd, { new: true })
             return res.status(201).send({ status: true, message: "Success", data: updatedData })
         }
+        let arr1 = []
 
-        if (!checkCart) {
-
-            let arr1 = []
-
-            let products = {
-                productId: productId,
-                quantity: 1
-            }
-            arr1.push(products)
-
-            let totalPriceCalculated = checkProduct.price * products.quantity
-
-            let productAdd = {
-                userId: userId,
-                items: arr1,
-                totalPrice: totalPriceCalculated,
-                totalItems: 1
-            }
-            let createdData = await cartModel.create(productAdd)
-            return res.status(201).send({ status: true, message: "Success", data: createdData })
+        let products = {
+            productId: productId,
+            quantity: 1
         }
+        arr1.push(products)
+
+        let totalPriceCalculated = checkProduct.price * products.quantity
+
+        let productAdd = {
+            userId: userId,
+            items: arr1,
+            totalPrice: totalPriceCalculated,
+            totalItems: 1
+        }
+        let createdData = await cartModel.create(productAdd)
+        return res.status(201).send({ status: true, message: "Success", data: createdData })
+
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }

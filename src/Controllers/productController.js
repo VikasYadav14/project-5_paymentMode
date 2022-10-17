@@ -89,7 +89,7 @@ async function getProducts(req, res) {
             if (!validString(name)) return res.status(400).send({ status: false, message: "If you select name than it should have non empty" })
             if (name) {
                 const regexName = new RegExp(name, "i");
-                query.title = { $regex: regexName };
+                query.title = { $regex: regexName};
             }
 
             if(!validString(price)) return res.status(400).send({ status: false, message: "If you select price than it should have non empty" })
@@ -202,7 +202,7 @@ const updateProduct = async function (req, res) {
         if (!validString(price)) return res.status(400).send({ status: false, message: "price can not be empty" })
         if (price) {
 
-            if (!priceValid.test(price)) return res.status(400).send({ status: false, message: "price should be in  valid Formate with Numbers || Decimals" })
+            if (!priceValid(price)) return res.status(400).send({ status: false, message: "price should be in  valid Formate with Numbers || Decimals" })
 
             data.price = price
         }
@@ -265,6 +265,8 @@ const updateProduct = async function (req, res) {
         return res.status(500).send({ error: error.message })
     }
 }
+
+
 async function deleteProductById(req, res) {
     try {
         let productId = req.params.productId

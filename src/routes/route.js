@@ -29,7 +29,7 @@ router.delete("/products/:productId", deleteProductById)
 
 router.post("/users/:userId/cart", authentication, addToCart)
 router.put("/users/:userId/cart",authentication,cartUpdate)
-router.delete("/users/:userId/cart",authentication,getCartDetails)
+router.get("/users/:userId/cart",authentication,getCartDetails)
 router.delete("/users/:userId/cart",authentication,deletecart)
 
 

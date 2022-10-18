@@ -176,10 +176,10 @@ async function getCartDetails(req, res) {
         if (!checkUserId) return res.status(404).send({ status: false, message: "UserId Do Not Exits" })
 
         let checkCart = await cartModel.findOne({ userId }).populate({
-            path:"items",
-            populate:{
-                path:'productId',
-                select: { 'title': 1,"price":1,"productImage":1},
+            path: "items",
+            populate: {
+                path: 'productId',
+                select: { 'title': 1, "price": 1, "productImage": 1 },
             }
         })
         if (!checkCart) return res.status(404).send({ status: false, message: "This user has no cart" })
@@ -193,11 +193,10 @@ async function getCartDetails(req, res) {
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
-
 }
 
 
-async function deletecart(req, res) {
+async function deleteCart(req, res) {
     try {
         let userId = req.params.userId
         let decodedToken = req.decodedToken
@@ -219,7 +218,7 @@ async function deletecart(req, res) {
 
         await cartModel.findOneAndUpdate({ userId }, cart, { new: true })
 
-        return res.status(204)
+        return res.status(204).send()
 
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
@@ -227,4 +226,4 @@ async function deletecart(req, res) {
 }
 
 
-module.exports = { addToCart, cartUpdate, getCartDetails, deletecart }
+module.exports = { addToCart, cartUpdate, getCartDetails, deleteCart }

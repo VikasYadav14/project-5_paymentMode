@@ -28,7 +28,7 @@ async function addToCart(req, res) {
 
         if (checkCart) {
             if (!isValid(cartId)) return res.status(400).send({ status: false, message: "Please Provide cartId" })
-            if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "Invalid ProductId" })
+            if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "Invalid cartId" })
             if (checkCart._id != cartId) return res.status(403).send({ status: false, message: "you are not authorized for this cartId" })
 
             let arr2 = checkCart.items
@@ -99,18 +99,7 @@ const cartUpdate = async function (req, res) {
 
         let { cartId, productId, removeProduct } = body
 
-        cartId = cartId.toString()
-        productId = productId.toString()
-
-        if (!keyValid(body)) return res.status(400).send({
-            status: false, message: "Please provide data to update the cart"
-        })
-
-        if (!objectIdValid(cartId)) { return res.status(400).send({ status: false, msg: "Invalid cartId" }) }
-
-        let cartDetails = await cartModel.findOne(cartId)
-
-        if (!cartDetails) return res.status(400).send({ status: false, message: "No cart Exist with provided CartId" })
+        if (!keyValid(body)) return res.status(400).send({ status: false, message: "Please provide data to Remove product or decrement the quantity" })
 
         if (!objectIdValid(productId)) { return res.status(400).send({ status: false, msg: "Invalid productId" }) }
 
@@ -121,6 +110,14 @@ const cartUpdate = async function (req, res) {
         let productCart = await cartModel.findOne({ items: { $elemMatch: { productId: { $eq: productId } } } })
 
         if (!productCart) return res.status(400).send({ status: false, message: `No product Exist in cart with given productId ${productId}` })
+
+        if (!objectIdValid(cartId)) { return res.status(400).send({ status: false, msg: "Invalid cartId" }) }
+
+        let cartDetails = await cartModel.findOne({ userId })
+
+        if (!cartDetails) return res.status(400).send({ status: false, message: "No cart Exist with provided CartId" })
+
+        if (cartDetails._id != cartId) return res.status(400).send({ status: false, message: "Unauthorized access!, You can't remove the other user cart" })
 
         if (!/^[0-1\|\(\)\&]$/.test(removeProduct)) return res.status(400).send({ status: false, message: "removeProduct should contains 1 for decrement of quantity by 1 || 0 for remove the product from cart" })
 
@@ -147,31 +144,34 @@ const cartUpdate = async function (req, res) {
                 itemsArray[i].quantity = itemsArray[i].quantity - 1
 
                 if (itemsArray[i].quantity < 1) {
-                    await cartModel.findByIdAndUpdate({ _id: cartId }, { $pull: { item: { productId: productId } } }, { new: true })
+                    await cartModel.findByIdAndUpdate({ _id: cartId }, { $pull: { items: { productId: productId } } }, { new: true })
 
                     let sumItems = cartDetails.totalItems - 1
 
-                    let data1 = await cartDetails.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: sumTotal1, totalItems: sumItems } }, { new: true })
+                    let data1 = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: sumTotal1, totalItems: sumItems } }, { new: true })
 
                     return res.status(200).send({ status: true, message: "No product exists for productId", data: data1 })
                 }
             }
         }
-        let res = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { items: itemsArray, totalPrice: sumTotal1 } }, { new: true })
+        let res1 = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { items: itemsArray, totalPrice: sumTotal1 } }, { new: true })
 
-        return res.status(200).send({ status: true, message: "product quantity is reduced by 1", data: data1 })
+        return res.status(200).send({ status: true, message: "product quantity is reduced by 1", data: res1 })
 
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
 }
 
-async function getCartDetails(req,res) {
+
+async function getCartDetails(req, res) {
     try {
-        
+
+
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })
     }
+
 }
 
 

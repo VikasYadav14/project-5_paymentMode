@@ -181,14 +181,14 @@ async function getCartDetails(req, res) {
                 path: 'productId',
                 select: { 'title': 1, "price": 1, "productImage": 1 },
             }
-        })
+        }).lean()
         if (!checkCart) return res.status(404).send({ status: false, message: "This user has no cart" })
 
-        let itemsLength=checkCart.items.length
+        let itemsLength = checkCart.items.length
 
-        if(itemsLength==0) return res.status(404).send({ status: false, message: "There are no products in Cart" })
+        if (itemsLength == 0) checkCart.items = "There are no products in Cart" 
 
-        return res.status(200).send({ status: true, toatalItems:itemsLength,data:checkCart })
+        return res.status(200).send({ status: true, toatalItems: itemsLength, message: "Success", data: checkCart })
 
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message })

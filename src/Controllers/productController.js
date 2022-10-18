@@ -89,11 +89,11 @@ async function getProducts(req, res) {
             if (!validString(name)) return res.status(400).send({ status: false, message: "If you select name than it should have non empty" })
             if (name) {
                 const regexName = new RegExp(name, "i");
-                query.title = { $regex: regexName};
+                query.title = { $regex: regexName };
             }
 
-            if(!validString(price)) return res.status(400).send({ status: false, message: "If you select price than it should have non empty" })
-            if(price){
+            if (!validString(price)) return res.status(400).send({ status: false, message: "If you select price than it should have non empty" })
+            if (price) {
                 price = JSON.parse(price)
 
                 if (!validString(price.priceGreaterThan)) return res.status(400).send({ status: false, message: "If you select priceGreaterThan than it should have non empty" })
@@ -101,7 +101,7 @@ async function getProducts(req, res) {
                     if (!priceValid(price.priceGreaterThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceGreaterThan" }) }
                     query.price = { '$gt': price.priceGreaterThan }
                 }
-    
+
                 if (!validString(price.priceLessThan)) return res.status(400).send({ status: false, message: "If you select priceLessThan than it should have non empty" })
                 if (price.priceLessThan) {
                     if (!priceValid(price.priceLessThan)) { return res.status(400).send({ status: false, messsage: "Enter a valid price in priceLessThan" }) }
@@ -111,7 +111,7 @@ async function getProducts(req, res) {
                     query.price = { '$lte': price.priceLessThan, '$gte': price.priceGreaterThan }
                 }
             }
-        
+
             if (!validString(priceSort)) return res.status(400).send({ status: false, message: "If you select priceSort than it should have non empty" })
             if (priceSort) {
                 if ((priceSort == 1 || priceSort == -1)) {

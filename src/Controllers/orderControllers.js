@@ -5,7 +5,7 @@ const userModel = require("../Models/userModel");
 const { keyValid, isValid } = require("../Validator/validation");
 
 
-const createOrder = async function (req, res) {
+exports.createOrder = async function (req, res) {
     try {
         const userId = req.params.userId;
         if (!isValidObjectId(userId))
@@ -77,7 +77,7 @@ const createOrder = async function (req, res) {
 }
 
 
-const updateOrder = async function (req, res) {
+exports.updateOrder = async function (req, res) {
     try {
         const userId = req.params.userId;
         const data = req.body;
@@ -187,4 +187,4 @@ const updateOrder = async function (req, res) {
 }
 
 
-module.exports = { createOrder, updateOrder };
+// module.exports = { createOrder, updateOrder };

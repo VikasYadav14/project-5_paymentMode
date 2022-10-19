@@ -35,21 +35,21 @@ const orderSchema = new mongoose.Schema({
     totalQuantity: {
         type: Number,
         required: true,
-        trim:true
+        trim: true
     },
     cancellable: {
         type: Boolean,
         default: true,
-        trim:true
+        trim: true
     },
     status: {
         type: String,
         default: 'pending',
         enum: ['pending', 'completed', 'canceled'],
-        trim:true
+        trim: true
     },
     deletedAt: { type: Date },
-    isDeleted: { type: Boolean, default: false}
+    isDeleted: { type: Boolean, default: false }
 }, { timestamps: true })
 
 

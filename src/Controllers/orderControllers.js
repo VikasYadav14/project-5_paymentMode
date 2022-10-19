@@ -63,12 +63,13 @@ const createOrder = async function (req, res) {
 
         // creating the order
         const orderCreated = await orderModel.create(response)
-        let { _doc: newOrder } = orderCreated
-        delete (newOrder.isDeleted)
-
+        let { _doc} = orderCreated
+        delete (_doc.isDeleted)
+        delete (_doc.__v)
+  
         // just to update the cart DB after order is placed
         await cartModel.findOneAndUpdate({ _id: cartId, userId: userId }, { $set: { items: [], totalPrice: 0, totalItems: 0 } }, { new: true });
-        return res.status(201).send({ status: true, message: 'Success', data: newOrder });
+        return res.status(201).send({ status: true, message: 'Success', data: _doc });
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -90,12 +91,7 @@ const updateOrder = async function (req, res) {
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: `The given userId: ${userId} is not in proper format` });
 
-        // validation for orderId
-        if (!isValid(orderId))
-            return res.status(400).send({ status: false, message: "OrderId is Required" });
-        if (!isValidObjectId(orderId))
-            return res.status(400).send({ status: false, message: "The given orderId is not in proper format" });
-
+            
         // finding user details
         const findUser = await userModel.findById(userId);
         if (!findUser)
@@ -105,6 +101,13 @@ const updateOrder = async function (req, res) {
         if (req.decodedToken != userId)
             return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
+        // validation for orderId
+        if (!isValid(orderId))
+            return res.status(400).send({ status: false, message: "OrderId is Required" });
+        if (!isValidObjectId(orderId))
+            return res.status(400).send({ status: false, message: "The given orderId is not in proper format" });
+
+
         // finding order details
         const findOrder = await orderModel.findOne({ _id: orderId, userId: userId })
         if (!findOrder)
@@ -113,17 +116,18 @@ const updateOrder = async function (req, res) {
 
         if (findOrder.cancellable == true) {
             if (!isValid(status))
-                return res.status(400).send({ status: false, message: "Status is required and the fields will be 'pending', 'completed', 'cancelled' only  " });
+                return res.status(400).send({ status: false, message: "Status is required and the fields will be 'completed' || 'cancelled' only  " });
 
             // enum validation
-            let statusIndex = ["pending", "completed", "cancelled"];
+            let statusIndex = ["completed", "cancelled"];
             if (statusIndex.indexOf(status) == -1)
-                return res.status(400).send({ status: false, message: "Please provide status from these options only ('pending', 'completed' or 'cancelled')" });
+                return res.status(400).send({ status: false, message: "Please provide status from these options only ('completed' or 'cancelled')" });
 
 
             if (status == 'completed') {
                 if (findOrder.status == 'pending') {
-                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status } }, { new: true }).select({isDeleted:0,deletedAt:0})
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
@@ -136,14 +140,15 @@ const updateOrder = async function (req, res) {
 
             if (status == 'cancelled') {
                 if (findOrder.status == 'pending') {
-                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status} }, { new: true }).select({isDeleted:0,deletedAt:0})
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
                     return res.status(400).send({ status: false, message: "Your order is already completed" });
                 }
                 if (findOrder.status == 'cancelled') {
-                    return res.status(400).send({ status: false, message: "Your order is already cancelled, because it is already cancelled" });
+                    return res.status(400).send({ status: false, message: "Your order is already cancelled" });
                 }
             }
         }
@@ -151,11 +156,16 @@ const updateOrder = async function (req, res) {
         if (findOrder.cancellable == false) {
 
             if (!isValid(status))
-                return res.status(400).send({ status: false, message: "Status is required and the fields will be 'pending', 'completed', 'cancelled' only" });
+                return res.status(400).send({ status: false, message: "Status is required and the fields will be 'completed' || 'cancelled' only  " });
+
+                let statusIndex = ["completed", "cancelled"];
+                if (statusIndex.indexOf(status) == -1)
+                return res.status(400).send({ status: false, message: "Please provide status from these options only ( 'completed' or 'cancelled')" });
 
             if (status == 'completed') {
                 if (findOrder.status == 'pending') {
-                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status} }, { new: true }).select({isDeleted:0,deletedAt:0})
+
                     return res.status(200).send({ status: true, message: 'Success', data: updateStatus });
                 }
                 if (findOrder.status == 'completed') {
@@ -167,7 +177,7 @@ const updateOrder = async function (req, res) {
             }
 
             if (status == 'cancelled') {
-                return res.status(400).send({ status: false, message: "Cannot be cancelled as it is not cancellable" })
+                return res.status(400).send({ status: false, message: "You can't cancel the order as it is not cancellable" })
             }
         }
 

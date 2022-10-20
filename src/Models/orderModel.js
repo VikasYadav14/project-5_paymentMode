@@ -59,6 +59,9 @@ const orderSchema = new mongoose.Schema({
         enum: ['pending', 'completed'],
         trim: true
     },
+    Address:{
+        type:String
+    },
     deletedAt: { type: Date },
     isDeleted: { type: Boolean, default: false }
 }, { timestamps: true })

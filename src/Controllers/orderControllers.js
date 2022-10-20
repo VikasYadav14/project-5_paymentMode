@@ -12,7 +12,7 @@ exports.createOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: `The given userId: ${userId} is not in proper format` });
 
         // finding user details
-        const findUser = await userModel.findOne({ _id: userId });
+        const findUser = await userModel.findOne({ _id: userId })
         if (!findUser)
             return res.status(404).send({ status: false, message: `User details not found with this provided userId: ${userId}` });
 
@@ -42,12 +42,12 @@ exports.createOrder = async function (req, res) {
             return res.status(404).send({ status: false, message: `Cart details are not found with the cartId: ${cartId}` });
 
         if (paymentMode == "onlinePayment") {
-            if (!isValid(paymentOption)) return res.status(400).send({ status: false, message: "You choose onlinepayment so select any of them 'upi' or 'netBanking'" });
+            if (!isValid(paymentOption)) return res.status(400).send({ status: false, message: "If you have choosen onlinepayment then provide the key as paymentOption and the value should be non Empty String with upi or net netBanking" });
             let Index = ["upi", "netBanking"];
             if (Index.indexOf(paymentOption) == -1)
                 return res.status(400).send({ status: false, message: "Please provide Mode from these options only ('upi', 'netBanking')" })
             paymentMode = paymentOption
-            paymentStatus = "completed"
+            paymentStatus = "completed"       
             var link=`https://p.paytm.me/xCTH/2ftsei4a`
 
         }
@@ -75,7 +75,8 @@ exports.createOrder = async function (req, res) {
             totalPrice: findCart.totalPrice,
             totalItems: findCart.totalItems,
             totalQuantity: count,
-            paymentMode, paymentStatus
+            paymentMode, paymentStatus,
+            Address:`Order is Placed To This address ${findUser.address}`
         };
 
         // creating the order
@@ -83,6 +84,9 @@ exports.createOrder = async function (req, res) {
         let { _doc } = orderCreated
         delete (_doc.isDeleted)
         delete (_doc.__v)
+        delete (_doc.createdAt)
+        delete (_doc.updatedAt)
+
 
         // just to update the cart DB after order is placed
         await cartModel.findOneAndUpdate({ _id: cartId, userId: userId }, { $set: { items: [], totalPrice: 0, totalItems: 0 } }, { new: true });

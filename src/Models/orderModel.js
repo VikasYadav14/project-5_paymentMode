@@ -38,20 +38,25 @@ const orderSchema = new mongoose.Schema({
         trim: true
     },
     paymentMode: {
-        type: String,
-        enum: ["cashOnDelivery", "onlinePayment"],
+        type:String,
         required: true,
-        trim: true
+        trim:true
     },
     cancellable: {
         type: Boolean,
         default: true,
         trim: true
     },
-    status: {
+    orderStatus: {
         type: String,
         default: 'pending',
         enum: ['pending', 'completed', 'canceled'],
+        trim: true
+    },
+    paymentStatus: {
+        type: String,
+        default: 'pending',
+        enum: ['pending', 'completed'],
         trim: true
     },
     deletedAt: { type: Date },

@@ -17,7 +17,7 @@ exports.createOrder = async function (req, res) {
             return res.status(404).send({ status: false, message: `User details not found with this provided userId: ${userId}` });
 
         const data = req.body;
-        const { cartId } = data;
+        const { cartId,paymentMode} = data;
 
         //checking for the empty body
         if (!keyValid(data))
@@ -28,6 +28,9 @@ exports.createOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: "CartId is required" });
         if (!isValidObjectId(cartId))
             return res.status(400).send({ status: false, message: `The given cartId: ${cartId} is not in proper format` });
+
+        if(!isValid()
+        
 
         //authorization
         if (req.decodedToken != userId)

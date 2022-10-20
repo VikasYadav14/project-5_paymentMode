@@ -1,11 +1,12 @@
 const userModel = require("../Models/userModel")
-const { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, validString, objectIdValid } = require('../Validator/validation')
+const { isValid, isValidName, isvalidEmail, isvalidMobile, isValidPassword, pincodeValid, keyValid, validString } = require('../Validator/validation')
 
 const imgUpload = require("../AWS/aws-S3")
 
 const bcrypt = require('bcrypt')
 
 const jwt = require('jsonwebtoken')
+const { isValidObjectId } = require("mongoose")
 
 const createUser = async function (req, res) {
     try {
@@ -143,7 +144,7 @@ let getById = async (req, res) => {
 
         const decodedToken = req.decodedToken
 
-        if (!objectIdValid(UserIdData)) return res.status(400).send({ status: false, message: 'userId is not valid' })
+        if (!isValidObjectId(UserIdData)) return res.status(400).send({ status: false, message: 'userId is not valid' })
 
         let user = await userModel.findById(UserIdData)
 
@@ -168,7 +169,7 @@ const updateUser = async function (req, res) {
         const decodedToken = req.decodedToken
 
         const files = req.files
-        if (!objectIdValid(userId)) return res.status(400).send({ status: false, message: 'userId is not valid' })
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'userId is not valid' })
 
         let user = await userModel.findById(userId)
 

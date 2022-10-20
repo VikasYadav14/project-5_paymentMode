@@ -6,6 +6,7 @@ const { createUser, updateUser, loginUser, getById } = require('../Controllers/u
 const { createProduct, getProducts, getProductById, updateProduct, deleteProductById } = require('../Controllers/productController')
 const { addToCart, cartUpdate, getCartDetails, deleteCart } = require('../Controllers/cartController')
 const { createOrder, updateOrder } = require('../Controllers/orderControllers')
+const { payment } = require('../Controllers/paymentController')
 
 router.get("/test", function (req, res) {
     return res.send({ data: "This to test" })
@@ -38,6 +39,8 @@ router.delete("/users/:userId/cart", authentication, deleteCart)
 router.post("/users/:userId/orders", authentication, createOrder)
 router.put("/users/:userId/orders", authentication, updateOrder)
 
+// for payment route=============================>
+router.post("/users/:userId/payment", authentication, payment)
 
 // for worng route=============================>
 

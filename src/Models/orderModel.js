@@ -37,6 +37,12 @@ const orderSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    paymentMode: {
+        type: String,
+        enum: ["cashOnDelivery", "onlinePayment"],
+        required: true,
+        trim: true
+    },
     cancellable: {
         type: Boolean,
         default: true,

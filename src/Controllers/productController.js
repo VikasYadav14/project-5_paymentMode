@@ -1,6 +1,6 @@
 const productModel = require('../Models/productModel')
 
-const { isValid, keyValid, priceValid, validString, objectIdValid } = require('../Validator/validation')
+const { isValid, keyValid, priceValid, validString } = require('../Validator/validation')
 
 const imgUpload = require("../AWS/aws-S3")
 const { isValidObjectId } = require('mongoose')
@@ -144,7 +144,7 @@ const getProductById = async function (req, res) {
         let productId = req.params.productId
 
         if (!productId) { return res.status(400).send({ ststus: false, msg: "Please enter Product Id in Path Params" }) }
-        if (!objectIdValid(productId)) { return res.status(400).send({ status: false, msg: "Invalid Product Id" }) }
+        if (!isValidObjectId(productId)) { return res.status(400).send({ status: false, msg: "Invalid Product Id" }) }
         const product = await productModel.findOne({ _id: productId, isDeleted: false })
 
         if (!product) { return res.status(404).send({ status: false, messgage: `Product is deleted or Not Available` }) }
@@ -167,7 +167,7 @@ const updateProduct = async function (req, res) {
 
         const files = req.files
 
-        if (!objectIdValid(productId)) return res.status(400).send({ status: false, message: 'productId is not valid' })
+        if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'productId is not valid' })
 
         let product = await productModel.findById(productId)
 
